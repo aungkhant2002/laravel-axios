@@ -15,10 +15,20 @@
         <div class="col-12">
             <div class="card mt-5">
                 <div class="card-body">
-                    <h4 class="animate__animated animate__slideInDown">
-                        <i class="fas fa-home"></i>
-                        Min Ga Lar Par
-                    </h4>
+                    <form action="{{ route('article.store') }}" method="post" id="fruitForm">
+                        @csrf
+                        <div class="row">
+                            <div class="col-3">
+                                <input type="text" name="name" class="form-control">
+                            </div>
+                            <div class="col-3">
+                                <input type="number" name="price" class="form-control">
+                            </div>
+                            <div class="col-3">
+                                <button type="submit" class="btn btn-primary">Add</button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -27,6 +37,25 @@
 
 <script src="{{ asset("js/app.js") }}"></script>
 <script>
+
+    $("#fruitForm").on("submit", function (e) {
+        e.preventDefault();
+        $.post($(this).attr("action"), $(this).serialize(), function (data) {
+            if (data.status === "success") {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Data Insert Successful',
+                    text: 'ဒေတာ ထည့်ခြင်း အောင်မြင်ပါသည်။',
+                })
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Fails',
+                    text: 'Something went wrong!',
+                })
+            }
+        })
+    })
 
 </script>
 </body>
