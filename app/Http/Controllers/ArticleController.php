@@ -6,6 +6,7 @@ use App\Models\Article;
 use App\Http\Requests\StoreArticleRequest;
 use App\Http\Requests\UpdateArticleRequest;
 use Illuminate\Support\Facades\Validator;
+use Intervention\Image\Facades\Image;
 
 class ArticleController extends Controller
 {
@@ -37,10 +38,11 @@ class ArticleController extends Controller
      */
     public function store(StoreArticleRequest $request)
     {
-
+//        return $request;
         $validation = Validator::make($request->all(), [
             "name" => "required|min:3",
             "price" => "required|integer|min:100",
+            "photo" => "required|file|mimetypes:image/jpeg,image/png",
         ]);
 
         if ($validation->fails()) {
@@ -50,10 +52,23 @@ class ArticleController extends Controller
             ]);
         }
 
+        $photo = $request->file("photo");
+        $newName = uniqid()."_photo.".$photo->extension();
+        $photo->storeAs("public/photo", $newName);
+        $img = Image::make($photo);
+        $img->fit(300, 300)->save("storage/thumbnail/".$newName);
+
+
+
         $article = new Article();
         $article->name = $request->name;
         $article->price = $request->price;
+        $article->photo = $newName;
         $article->save();
+
+        $article->original_photo = asset("storage/photo/".$article->photo);
+        $article->thumbnail = asset("storage/thumbnail/".$article->photo);
+        $article->time = $article->created_at->diffForHumans();
 
         return response()->json([
             "status" => "success",
@@ -70,7 +85,9 @@ class ArticleController extends Controller
      */
     public function show(Article $article)
     {
-        //
+        $article->original_photo = asset("storage/photo/".$article->photo);
+        $article->thumbnail = asset("storage/thumbnail/".$article->photo);
+        return $article;
     }
 
     /**

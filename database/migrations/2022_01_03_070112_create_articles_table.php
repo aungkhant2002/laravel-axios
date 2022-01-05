@@ -16,6 +16,7 @@ CreateArticlesTable extends Migration
     {
         Schema::create('articles', function (Blueprint $table) {
             $table->id();
+            $table->string("photo")->nullable();
             $table->string('name');
             $table->integer('price');
             $table->timestamps();
